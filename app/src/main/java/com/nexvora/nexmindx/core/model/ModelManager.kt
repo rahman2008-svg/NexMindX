@@ -10,10 +10,7 @@ class ModelManager(private val context: Context) {
         return downloader.getModelFile().absolutePath
     }
 
-    suspend fun ensureModel(
-        onProgress: (Int) -> Unit
-    ): String {
-
+    suspend fun ensureModel(onProgress: (Int) -> Unit): String {
         val file = downloader.downloadModel(onProgress)
         return file.absolutePath
     }
