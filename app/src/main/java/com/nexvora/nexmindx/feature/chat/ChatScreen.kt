@@ -13,29 +13,55 @@ fun ChatScreen() {
     val ai = remember { AIManager() }
 
     var input by remember { mutableStateOf("") }
-    var output by remember { mutableStateOf("Ask something...") }
+    var output by remember { mutableStateOf("👋 Ask me anything...") }
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
 
-        Text("NexMindX 🤖", style = MaterialTheme.typography.titleLarge)
+        Text(
+            text = "🤖 NexMindX AI",
+            style = MaterialTheme.typography.titleLarge
+        )
 
-        Spacer(Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        Text(output)
+        // Output box
+        Card(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        ) {
+            Text(
+                text = output,
+                modifier = Modifier.padding(12.dp)
+            )
+        }
 
-        Spacer(Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
+        // Input field
         TextField(
             value = input,
             onValueChange = { input = it },
-            label = { Text("Type here...") }
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("Type your message...") }
         )
 
-        Spacer(Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
-        Button(onClick = {
-            output = ai.generateResponse(input)
-        }) {
+        // Send button
+        Button(
+            onClick = {
+                if (input.isNotBlank()) {
+                    output = ai.ask(input)
+                    input = ""
+                }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text("Send")
         }
     }
