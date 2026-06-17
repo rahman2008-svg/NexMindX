@@ -7,7 +7,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.nexvora.nexmindx.core.ai.AIManager
-import com.nexvora.nexmindx.core.model.ModelManager
 import kotlinx.coroutines.launch
 
 @Composable
@@ -15,16 +14,15 @@ fun ChatScreen() {
 
     val context = LocalContext.current
 
-    val ai = remember { AIManager() }
-    val modelManager = remember { ModelManager(context) }
+    // ✅ FIX 1: context pass করা
+    val ai = remember { AIManager(context) }
 
     val scope = rememberCoroutineScope()
 
     var input by remember { mutableStateOf("") }
-    var output by remember { mutableStateOf("👋 Ask me anything...") }
-
-    var modelStatus by remember { mutableStateOf("📦 Model Not Downloaded") }
-    var downloadProgress by remember { mutableStateOf(0) }
+    var output by remember { mutableStateOf("👋 Ready") }
+    var progress by remember { mutableStateOf(0) }
+    var loading by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -32,82 +30,55 @@ fun ChatScreen() {
             .padding(16.dp)
     ) {
 
-        Text(
-            text = "🤖 NexMindX AI",
-            style = MaterialTheme.typography.titleLarge
-        )
+        Text("🤖 NexMindX AI", style = MaterialTheme.typography.titleLarge)
 
-        Spacer(modifier = Modifier.height(10.dp))
+        Spacer(Modifier.height(10.dp))
 
-        Text(text = modelStatus)
-
-        Spacer(modifier = Modifier.height(6.dp))
-
-        LinearProgressIndicator(
-            progress = (downloadProgress.coerceIn(0, 100)) / 100f,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // 📥 DOWNLOAD BUTTON
-        Button(
-            onClick = {
-                scope.launch {
-
-                    modelStatus = "⬇ Starting download..."
-
-                    val path = modelManager.ensureModel { progress ->
-                        downloadProgress = progress
-                        modelStatus = "⬇ Downloading... $progress%"
-                    }
-
-                    modelStatus = "✅ Model Ready"
-                }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("Download AI Model")
+        if (loading) {
+            Text("Loading Model... $progress%")
+            LinearProgressIndicator(progress = progress / 100f)
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(Modifier.height(10.dp))
 
-        // 💬 CHAT OUTPUT
         Card(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
         ) {
-            Text(
-                text = output,
-                modifier = Modifier.padding(12.dp)
-            )
+            Text(output, modifier = Modifier.padding(12.dp))
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(Modifier.height(10.dp))
 
-        // ✍ INPUT
         TextField(
             value = input,
             onValueChange = { input = it },
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Type message...") }
+            modifier = Modifier.fillMaxWidth()
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(Modifier.height(8.dp))
 
-        // 🚀 SEND BUTTON
         Button(
+            modifier = Modifier.fillMaxWidth(),
             onClick = {
-                if (input.isNotBlank()) {
 
-                    // ⚠️ TEMP AI RESPONSE (REAL LLM NEXT STEP)
-                    output = ai.ask(input)
+                if (input.isBlank()) return@Button
 
+                // ✅ FIX 2: coroutine ব্যবহার করা
+                scope.launch {
+
+                    loading = true
+
+                    val response = ai.ask(input) { p ->
+                        progress = p
+                    }
+
+                    output = response
+                    loading = false
                     input = ""
                 }
-            },
-            modifier = Modifier.fillMaxWidth()
+            }
         ) {
             Text("Send")
         }

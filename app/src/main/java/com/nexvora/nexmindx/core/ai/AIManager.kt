@@ -11,6 +11,6 @@ class AIManager(context: Context) {
 
         val path = modelManager.ensureModel(onProgress)
 
-        return "🤖 Model Ready:\n$path\n\nReply: $prompt"
+        return "🤖 AI Ready\nModel: $path\n\nResponse: $prompt"
     }
 }
