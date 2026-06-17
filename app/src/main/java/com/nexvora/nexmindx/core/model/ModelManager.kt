@@ -6,11 +6,11 @@ class ModelManager(private val context: Context) {
 
     private val downloader = ModelDownloader(context)
 
-    fun getModelPath(): String {
-        return downloader.getModelFile().absolutePath
+    fun isReady(): Boolean {
+        return downloader.file().exists()
     }
 
-    suspend fun ensureModel(onProgress: (Int) -> Unit): String {
-        return downloader.downloadModel(onProgress).absolutePath
+    suspend fun ensure(onProgress: (Int) -> Unit): String {
+        return downloader.download(onProgress).absolutePath
     }
 }

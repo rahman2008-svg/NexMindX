@@ -13,10 +13,7 @@ import kotlinx.coroutines.launch
 fun ChatScreen() {
 
     val context = LocalContext.current
-
-    // ✅ FIX 1: context pass করা
     val ai = remember { AIManager(context) }
-
     val scope = rememberCoroutineScope()
 
     var input by remember { mutableStateOf("") }
@@ -25,28 +22,20 @@ fun ChatScreen() {
     var loading by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
+        Modifier.fillMaxSize().padding(16.dp)
     ) {
 
         Text("🤖 NexMindX AI", style = MaterialTheme.typography.titleLarge)
 
-        Spacer(Modifier.height(10.dp))
-
         if (loading) {
-            Text("Loading Model... $progress%")
+            Text("Downloading Model... $progress%")
             LinearProgressIndicator(progress = progress / 100f)
         }
 
         Spacer(Modifier.height(10.dp))
 
-        Card(
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-        ) {
-            Text(output, modifier = Modifier.padding(12.dp))
+        Card(Modifier.fillMaxWidth().weight(1f)) {
+            Text(output, Modifier.padding(12.dp))
         }
 
         Spacer(Modifier.height(10.dp))
@@ -63,18 +52,13 @@ fun ChatScreen() {
             modifier = Modifier.fillMaxWidth(),
             onClick = {
 
-                if (input.isBlank()) return@Button
-
-                // ✅ FIX 2: coroutine ব্যবহার করা
                 scope.launch {
-
                     loading = true
 
-                    val response = ai.ask(input) { p ->
-                        progress = p
+                    output = ai.ask(input) {
+                        progress = it
                     }
 
-                    output = response
                     loading = false
                     input = ""
                 }

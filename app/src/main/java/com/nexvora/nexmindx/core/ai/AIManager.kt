@@ -9,8 +9,8 @@ class AIManager(context: Context) {
 
     suspend fun ask(prompt: String, onProgress: (Int) -> Unit = {}): String {
 
-        val path = modelManager.ensureModel(onProgress)
+        val path = modelManager.ensure(onProgress)
 
-        return "🤖 AI Ready\nModel: $path\n\nResponse: $prompt"
+        return "🤖 AI Ready\nModel: $path\n\nReply: $prompt"
     }
 }

@@ -8,43 +8,37 @@ import java.net.URL
 
 class ModelDownloader(private val context: Context) {
 
-    private val modelUrl =
+    private val url =
         "https://huggingface.co/TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF/resolve/main/tinyllama-1.1b-chat-v1.0.Q4_0.gguf"
 
     private val fileName = "tinyllama.gguf"
 
-    fun getModelFile(): File {
-        return File(context.filesDir, fileName)
-    }
+    fun file(): File = File(context.filesDir, fileName)
 
-    suspend fun downloadModel(onProgress: (Int) -> Unit): File {
+    suspend fun download(onProgress: (Int) -> Unit): File {
         return withContext(Dispatchers.IO) {
 
-            val file = getModelFile()
+            val file = file()
 
-            if (file.exists() && file.length() > 0) {
+            if (file.exists() && file.length() > 10_000_000) {
                 return@withContext file
             }
 
-            val connection = URL(modelUrl).openConnection()
-            connection.connectTimeout = 15000
-            connection.readTimeout = 15000
+            val conn = URL(url).openConnection()
+            val size = conn.contentLength.coerceAtLeast(1)
 
-            val size = connection.contentLength.coerceAtLeast(1)
-
-            connection.getInputStream().use { input ->
+            conn.getInputStream().use { input ->
                 file.outputStream().use { output ->
 
                     val buffer = ByteArray(8 * 1024)
-                    var bytesRead: Int
-                    var downloaded = 0
+                    var read: Int
+                    var total = 0
 
-                    while (input.read(buffer).also { bytesRead = it } != -1) {
-                        output.write(buffer, 0, bytesRead)
-                        downloaded += bytesRead
+                    while (input.read(buffer).also { read = it } != -1) {
+                        output.write(buffer, 0, read)
+                        total += read
 
-                        val progress = (downloaded * 100 / size)
-                        onProgress(progress)
+                        onProgress((total * 100 / size))
                     }
                 }
             }

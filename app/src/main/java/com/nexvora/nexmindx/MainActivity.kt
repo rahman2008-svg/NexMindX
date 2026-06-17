@@ -3,7 +3,6 @@ package com.nexvora.nexmindx
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.MaterialTheme
 import com.nexvora.nexmindx.feature.chat.ChatScreen
 
 class MainActivity : ComponentActivity() {
@@ -12,9 +11,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            MaterialTheme {
-                ChatScreen()
-            }
+            ChatScreen()
         }
     }
 }
