@@ -1,0 +1,26 @@
+workflows:
+  nexmindx-android:
+    name: NexMindX Android Build
+    max_build_duration: 60
+
+    environment:
+      java: 17
+      android_signing: false
+
+    scripts:
+      - name: Set permissions
+        script: chmod +x gradlew
+
+      - name: Clean project
+        script: ./gradlew clean
+
+      - name: Build Debug APK
+        script: ./gradlew assembleDebug
+
+    artifacts:
+      - app/build/outputs/**/*.apk
+
+    publishing:
+      email:
+        recipients:
+          - your-email@example.com
