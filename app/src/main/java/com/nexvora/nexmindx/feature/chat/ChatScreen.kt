@@ -11,12 +11,13 @@ import com.nexvora.nexmindx.core.ai.AIManager
 fun ChatScreen() {
 
     val ai = remember { AIManager() }
+
     var input by remember { mutableStateOf("") }
     var output by remember { mutableStateOf("Ask something...") }
 
     Column(modifier = Modifier.padding(16.dp)) {
 
-        Text("NexMind X Chat 🚀", style = MaterialTheme.typography.titleLarge)
+        Text("NexMindX 🤖", style = MaterialTheme.typography.titleLarge)
 
         Spacer(Modifier.height(12.dp))
 
@@ -27,14 +28,13 @@ fun ChatScreen() {
         TextField(
             value = input,
             onValueChange = { input = it },
-            label = { Text("Type prompt...") }
+            label = { Text("Type here...") }
         )
 
         Spacer(Modifier.height(8.dp))
 
         Button(onClick = {
-            output = "Thinking..."
-            output = ai.generateResponse(input).toString()
+            output = ai.generateResponse(input)
         }) {
             Text("Send")
         }

@@ -1,8 +1,8 @@
 package com.nexvora.nexmindx.core.ai
 
-class AIManager : AIEngine {
+class AIManager {
 
-    override suspend fun generateResponse(prompt: String): String {
-        return "🤖 NexMind AI Response:\n\nYou asked: $prompt\n\n(Offline engine will be connected soon)"
+    fun generateResponse(prompt: String): String {
+        return "🤖 NexMind AI: You said -> $prompt"
     }
 }
