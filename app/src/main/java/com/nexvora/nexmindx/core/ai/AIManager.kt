@@ -1,10 +1,16 @@
 package com.nexvora.nexmindx.core.ai
 
-class AIManager {
+import android.content.Context
+import com.nexvora.nexmindx.core.model.ModelManager
 
-    private val engine = LlamaEngine()
+class AIManager(context: Context) {
 
-    fun ask(prompt: String): String {
-        return engine.generate(prompt)
+    private val modelManager = ModelManager(context)
+
+    suspend fun ask(prompt: String, onProgress: (Int) -> Unit = {}): String {
+
+        val path = modelManager.ensureModel(onProgress)
+
+        return "🤖 Model Ready:\n$path\n\nReply: $prompt"
     }
 }

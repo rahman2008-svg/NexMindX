@@ -17,34 +17,39 @@ class ModelDownloader(private val context: Context) {
         return File(context.filesDir, fileName)
     }
 
-    suspend fun downloadModel(
-        onProgress: (Int) -> Unit
-    ): File = withContext(Dispatchers.IO) {
+    suspend fun downloadModel(onProgress: (Int) -> Unit): File {
+        return withContext(Dispatchers.IO) {
 
-        val file = getModelFile()
+            val file = getModelFile()
 
-        if (file.exists()) return@withContext file
+            if (file.exists() && file.length() > 0) {
+                return@withContext file
+            }
 
-        val connection = URL(modelUrl).openConnection()
-        val size = connection.contentLength
+            val connection = URL(modelUrl).openConnection()
+            connection.connectTimeout = 15000
+            connection.readTimeout = 15000
 
-        connection.getInputStream().use { input ->
-            file.outputStream().use { output ->
+            val size = connection.contentLength.coerceAtLeast(1)
 
-                val buffer = ByteArray(8 * 1024)
-                var bytesRead: Int
-                var downloaded = 0
+            connection.getInputStream().use { input ->
+                file.outputStream().use { output ->
 
-                while (input.read(buffer).also { bytesRead = it } != -1) {
-                    output.write(buffer, 0, bytesRead)
-                    downloaded += bytesRead
+                    val buffer = ByteArray(8 * 1024)
+                    var bytesRead: Int
+                    var downloaded = 0
 
-                    val progress = (downloaded * 100 / size)
-                    onProgress(progress)
+                    while (input.read(buffer).also { bytesRead = it } != -1) {
+                        output.write(buffer, 0, bytesRead)
+                        downloaded += bytesRead
+
+                        val progress = (downloaded * 100 / size)
+                        onProgress(progress)
+                    }
                 }
             }
-        }
 
-        return@withContext file
+            file
+        }
     }
 }

@@ -8,8 +8,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.nexvora.nexmindx.core.ai.AIManager
 import com.nexvora.nexmindx.core.model.ModelManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Composable
@@ -19,6 +17,8 @@ fun ChatScreen() {
 
     val ai = remember { AIManager() }
     val modelManager = remember { ModelManager(context) }
+
+    val scope = rememberCoroutineScope()
 
     var input by remember { mutableStateOf("") }
     var output by remember { mutableStateOf("👋 Ask me anything...") }
@@ -37,29 +37,32 @@ fun ChatScreen() {
             style = MaterialTheme.typography.titleLarge
         )
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         Text(text = modelStatus)
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
         LinearProgressIndicator(
-            progress = downloadProgress / 100f,
+            progress = (downloadProgress.coerceIn(0, 100)) / 100f,
             modifier = Modifier.fillMaxWidth()
         )
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // MODEL DOWNLOAD BUTTON
+        // 📥 DOWNLOAD BUTTON
         Button(
             onClick = {
-                CoroutineScope(Dispatchers.IO).launch {
-                    modelManager.ensureModel { progress ->
+                scope.launch {
+
+                    modelStatus = "⬇ Starting download..."
+
+                    val path = modelManager.ensureModel { progress ->
                         downloadProgress = progress
-                        modelStatus = "⬇ Downloading Model... $progress%"
+                        modelStatus = "⬇ Downloading... $progress%"
                     }
 
-                    modelStatus = "✅ Model Ready (Offline AI Active)"
+                    modelStatus = "✅ Model Ready"
                 }
             },
             modifier = Modifier.fillMaxWidth()
@@ -69,7 +72,7 @@ fun ChatScreen() {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // OUTPUT BOX
+        // 💬 CHAT OUTPUT
         Card(
             modifier = Modifier
                 .fillMaxWidth()
@@ -83,22 +86,22 @@ fun ChatScreen() {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // INPUT FIELD
+        // ✍ INPUT
         TextField(
             value = input,
             onValueChange = { input = it },
             modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Type your message...") }
+            placeholder = { Text("Type message...") }
         )
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // SEND BUTTON
+        // 🚀 SEND BUTTON
         Button(
             onClick = {
                 if (input.isNotBlank()) {
 
-                    // ⚠️ Temporary AI (real LLM will come next step)
+                    // ⚠️ TEMP AI RESPONSE (REAL LLM NEXT STEP)
                     output = ai.ask(input)
 
                     input = ""
